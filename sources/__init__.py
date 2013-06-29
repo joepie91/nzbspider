@@ -1,0 +1,2 @@
+class NzbindexSpider(object):
+	pass
