@@ -11,8 +11,9 @@ extend. Contributions welcome.
 
 ## Installing
 
-You'll need to `pip install oursql` (this will require having the MySQL
-development libraries installed). Other than that, just run main.py.
+You'll need to `pip install oursql requests` (this will require having 
+the MySQL development libraries installed). Other than that, just run 
+main.py.
 
 ## License
 
