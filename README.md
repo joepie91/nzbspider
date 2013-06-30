@@ -18,7 +18,10 @@ main.py.
 ## Usage
 
 You can use nzbspider with either a release list or a configuration 
-file.
+file. Using `--iplist` you can specify a newline-delimited file that
+contains all the available IPs on your machine. nzbspider will randomly
+pick one for every search query. If not specified, the OS default is 
+used.
 
 ### Release list
 
