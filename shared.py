@@ -11,9 +11,13 @@ user_agents = [
 	"Mozilla/5.0 (Windows NT 6.1; rv:21.0) Gecko/20100101 Firefox/21.0",
 	"Mozilla/5.0 (Windows NT 5.1; rv:21.0) Gecko/20100101 Firefox/21.0",
 	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/536.30.1 (KHTML, like Gecko) Version/6.0.5 Safari/536.30.1",
+	"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.63 Safari/537.36"
 ]
 
 class NotFoundException(Exception):
+	pass
+	
+class DownloadException(Exception):
 	pass
 	
 # Very nasty monkeypatching ahead!
@@ -28,7 +32,7 @@ class ModifiedSession(requests.Session):
 			self.bound_ip = ""
 			
 		requests.Session.__init__(self, *args, **kwargs)
-		self.headers['user-agent'] = random.choice(user_agents)
+		self.headers['User-Agent'] = random.choice(user_agents)
 		
 	def patch_socket(self):
 		socket.create_connection = get_patched_func(self.bound_ip)
@@ -44,7 +48,7 @@ class ModifiedSession(requests.Session):
 		
 	def post(self, *args, **kwargs):
 		self.patch_socket()
-		response = requests.Session.get(self, *args, **kwargs)
+		response = requests.Session.post(self, *args, **kwargs)
 		self.unpatch_socket()
 		return response
 
@@ -66,3 +70,5 @@ def download_file(request, target):
 			f.write(chunk)
 			
 		f.close()
+	else:
+		raise DownloadException("Status code was %s" % request.status_code)

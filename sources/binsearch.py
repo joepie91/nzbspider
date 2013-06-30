@@ -21,7 +21,8 @@ class BinsearchSpider(object):
 			"adv_col": "on",
 			"adv_nfo": "on",
 			"font": "",
-			"postdate": ""
+			"postdate": "",
+			"server": ""
 		}, verify=False)
 		
 		search_results = []
@@ -45,7 +46,7 @@ class BinsearchSpider(object):
 				match = re.search('<input[^>]*type="checkbox"[^>]*name="([0-9]+)"[^>]*>', result)
 				
 				if match is not None:
-					search_results.append(BinsearchResult(name, title, match.group(1), self))
+					search_results.append(BinsearchResult(name, title, match.group(1), self, response.url))
 		
 		if len(search_results) == 0:
 			raise NotFoundException("No results were found.")
@@ -53,11 +54,12 @@ class BinsearchSpider(object):
 		return search_results
 	
 class BinsearchResult(object):
-	def __init__(self, name, title, id_, spider):
+	def __init__(self, name, title, id_, spider, searchurl):
 		self.name = name
 		self.title = title
 		self.id_ = id_
 		self.spider = spider
+		self.searchurl = searchurl
 	
 	def show(self):
 		print "%s -> %s (%s)" % (self.title, self.id_, self.name)
@@ -65,6 +67,8 @@ class BinsearchResult(object):
 	def download(self, target_path):
 		data_dict = {"action": "nzb"}
 		data_dict[self.id_] = "on"
+		
+		self.spider.session.headers['Referer'] = self.searchurl
 		
 		response = self.spider.session.post("https://www.binsearch.info/fcgi/nzb.fcgi", params={
 			"q": self.name,
@@ -78,7 +82,8 @@ class BinsearchResult(object):
 			"adv_col": "on",
 			"adv_nfo": "on",
 			"font": "",
-			"postdate": ""
+			"postdate": "",
+			"server": ""
 		}, data=data_dict)
 		
 		download_file(response, target_path)

@@ -137,6 +137,7 @@ for release in releases:
 	except Exception, e:
 		errors += 1
 		sys.stderr.write("Downloading NZB for %s failed: %s\n" % (release_name, repr(e)))
+		continue
 		
 	sys.stdout.write("Downloaded NZB for %s.\n" % release_name)
 	downloaded += 1
