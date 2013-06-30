@@ -124,7 +124,7 @@ for release in releases:
 			continue
 			
 	# Process result
-	result = results[1]
+	result = results[0]
 	
 	try:
 		result.download(target_path)
