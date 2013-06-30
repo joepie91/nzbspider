@@ -1,4 +1,4 @@
-import re, oursql, requests, sys, json, shlex, argparse
+import re, oursql, requests, sys, json, shlex, argparse, os
 
 from sources.nzbindex import NzbindexSpider
 from sources.binsearch import BinsearchSpider
@@ -83,8 +83,25 @@ elif mode == "list":
 
 sys.stdout.write("Found %d releases.\n" % len(releases))
 
+downloaded = 0
+skipped = 0
+errors = 0
+notfound = 0
+
 for release in releases:
 	release_name, target_dir = release
+	target_path = os.path.join(target_dir, "%s.nzb" % release_name)
+	
+	if os.path.exists(target_path):
+		# This NZB was already downloaded.
+		skipped += 1
+		continue
+	
+	try:
+		os.makedirs(target_dir)
+	except OSError, e:
+		# Target directory already exists
+		pass
 	
 	try:
 		spider = NzbindexSpider()
@@ -95,8 +112,19 @@ for release in releases:
 			results = spider.find(release_name)
 		except NotFoundException, e:
 			sys.stderr.write("Could not find release %s\n" % release_name)
+			notfound += 1
 			continue
 			
 	# Process result
-	for result in results:
-		result.show()
+	result = results[1]
+	
+	try:
+		result.download(target_path)
+	except Exception, e:
+		errors += 1
+		sys.stderr.write("Downloading NZB for %s failed: %s\n" % (release_name, repr(e)))
+		
+	sys.stdout.write("Downloaded NZB for %s.\n" % release_name)
+	downloaded += 1
+
+sys.stdout.write("Finished. %d downloaded, %d skipped, %d errors and %d not found.\n" % (downloaded, skipped, errors, notfound))

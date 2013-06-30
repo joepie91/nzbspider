@@ -21,7 +21,7 @@ class ModifiedSession(requests.Session):
 		requests.Session.__init__(self, *args, **kwargs)
 		self.headers['user-agent'] = random.choice(user_agents)
 	
-def download_file(self, request, target):
+def download_file(request, target):
 	if request.status_code == 200:
 		f = open(target, "wb")
 		
