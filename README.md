@@ -18,7 +18,9 @@ main.py.
 ## Usage
 
 You can use nzbspider with either a release list or a configuration 
-file. Using `--iplist` you can specify a newline-delimited file that
+file. 
+
+Using `--iplist` you can specify a newline-delimited file that
 contains all the available IPs on your machine. nzbspider will randomly
 pick one for every search query. If not specified, the OS default is 
 used.
@@ -67,6 +69,9 @@ allow comments, so don't copy this verbatim!):
 Note that these searches are run against your own database, not directly
 against the NZB indexing sites! You'll still need a list of valid 
 release names pre-filled in your database.
+
+Using `--limit` you can override the default limit of matched results.
+The default is the 250 newest results.
 
 ## Notes
 

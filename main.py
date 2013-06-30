@@ -9,6 +9,7 @@ parser.add_argument("--config", dest="config", action="store", help="Use a confi
 parser.add_argument("--list", dest="list", action="store", help="Use a newline-delimited list of releases as source")
 parser.add_argument("--target", dest="target", action="store", help="Where to save the NZBs (only needed in list mode)")
 parser.add_argument("--iplist", dest="iplist", action="store", help="Bind every request to a random IP from a newline-delimited list")
+parser.add_argument("--limit", dest="limit", action="store", help="How many records to select in configuration file mode, at most (default: 250)", default=250)
 args = parser.parse_args()
 
 if args.config is not None:
@@ -64,10 +65,12 @@ if mode == "config":
 			fields.append("`section` LIKE ?")
 			values.append("%" + section + "%")
 		
+		values.append(args.limit)
+		
 		if len(fields) == 0:
-			db_query = "SELECT `release` FROM %s WHERE `time` < (UNIX_TIMESTAMP(NOW()) - 86400) ORDER BY `time` DESC LIMIT 250" % conf['db']['table']
+			db_query = "SELECT `release` FROM %s WHERE `time` < (UNIX_TIMESTAMP(NOW()) - 86400) ORDER BY `time` DESC LIMIT ?" % conf['db']['table']
 		else:
-			db_query = "SELECT `release` FROM %s WHERE %s AND `time` < (UNIX_TIMESTAMP(NOW()) - 86400) ORDER BY `time` DESC LIMIT 250" % (conf['db']['table'], " AND ".join(fields))
+			db_query = "SELECT `release` FROM %s WHERE %s AND `time` < (UNIX_TIMESTAMP(NOW()) - 86400) ORDER BY `time` DESC LIMIT ?" % (conf['db']['table'], " AND ".join(fields))
 		
 		c.execute(db_query, values)
 		
