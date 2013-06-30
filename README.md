@@ -15,6 +15,12 @@ You'll need to `pip install oursql requests` (this will require having
 the MySQL development libraries installed). Other than that, just run 
 main.py.
 
+## Notes
+
+The script will assume that all releasenames in your database are safe
+as a filename. No sanitation or conversion of the filenames will take
+place.
+
 ## License
 
 Licensed under the WTFPL or, if you take issue with that for some
