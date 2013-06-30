@@ -30,11 +30,14 @@ download the NZBs to.
 ### Configuration file
 
 This is a text file using a specific configuration syntax to select
-specific releases from a pre-filled MySQl database, to search for. To
-use this mode, you will need to copy config.json.example to config.json
-and change the database details to match yours. A (basic) database
-schema is included. Only results that are at least 24 hours old will be
-matched, regardless of your configuration.
+specific releases from a pre-filled MySQl database, to search for. Use
+the `--config` parameter to specify the path of the configuration file
+you wish to use.
+
+To use this mode, you will need to copy config.json.example to 
+config.json and change the database details to match yours. A (basic) 
+database schema is included. Only results that are at least 24 hours old
+will be matched, regardless of your configuration.
 
 The configuration file format is as follows:
 
