@@ -26,30 +26,31 @@ class NzbindexSpider(object):
 		
 		search_results = []
 		
-		results = re.findall("<tr[^>]+>(.*?)<\/tr>", response.text, re.DOTALL)
+		results = re.findall("<tr[^>]*>(.*?)<\/tr>", response.text, re.DOTALL)
 		
 		for result in results:
 			if 'class="threat"' in result:
 				# Password protected or otherwise unsuitable for download
 				continue
 			
-			match = re.search("<label[^>]+>(.*?)<\/label>", result, re.DOTALL)
+			match = re.search("<label[^>]*>(.*?)<\/label>", result, re.DOTALL)
 			
 			if match is None:
 				continue
 				
-			title = parser.unescape(re.sub("<[^>]+>", "", match.group(1)))
+			title = parser.unescape(re.sub("<[^>]*>", "", match.group(1)))
 			
 			if name.lower() in title.lower():
 				match = re.search('https?:\/\/nzbindex\.com\/download\/[^"]+\.nzb', result)
 				
 				if match is not None:
-					search_results.append(NzbindexResult(title, match.group(0)))
+					search_results.append(NzbindexResult(title, match.group(0), self))
 		
 		if len(search_results) == 0:
 			raise NotFoundException("No results were found.")
 				
 		return search_results
+		
 class NzbindexResult(object):
 	def __init__(self, title, url, spider):
 		self.title = title
