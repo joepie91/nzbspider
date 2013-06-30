@@ -59,9 +59,9 @@ if mode == "config":
 			values.append("%" + section + "%")
 		
 		if len(fields) == 0:
-			db_query = "SELECT `release` FROM %s WHERE `time` < (UNIX_TIMESTAMP(NOW()) - 86400)" % conf['db']['table']
+			db_query = "SELECT `release` FROM %s WHERE `time` < (UNIX_TIMESTAMP(NOW()) - 86400) ORDER BY `time` DESC LIMIT 250" % conf['db']['table']
 		else:
-			db_query = "SELECT `release` FROM %s WHERE %s AND `time` < (UNIX_TIMESTAMP(NOW()) - 86400)" % (conf['db']['table'], " AND ".join(fields))
+			db_query = "SELECT `release` FROM %s WHERE %s AND `time` < (UNIX_TIMESTAMP(NOW()) - 86400) ORDER BY `time` DESC LIMIT 250" % (conf['db']['table'], " AND ".join(fields))
 		
 		c.execute(db_query, values)
 		
@@ -88,6 +88,8 @@ skipped = 0
 errors = 0
 notfound = 0
 
+notfound_list = []
+
 for release in releases:
 	release_name, target_dir = release
 	target_path = os.path.join(target_dir, "%s.nzb" % release_name)
@@ -95,6 +97,11 @@ for release in releases:
 	if os.path.exists(target_path):
 		# This NZB was already downloaded.
 		skipped += 1
+		continue
+		
+	if release_name in notfound_list:
+		# This NZB couldn't be found before
+		notfound += 1
 		continue
 	
 	try:
@@ -112,6 +119,7 @@ for release in releases:
 			results = spider.find(release_name)
 		except NotFoundException, e:
 			sys.stderr.write("Could not find release %s\n" % release_name)
+			notfound_list.append(release_name)
 			notfound += 1
 			continue
 			
