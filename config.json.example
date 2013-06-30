@@ -1,0 +1,9 @@
+{
+	"db": {
+		"host": "localhost",
+		"user": "nzbspider",
+		"pass": "sekrit",
+		"db": "nzbspider",
+		"table": "releases"
+	}
+}
