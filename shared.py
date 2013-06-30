@@ -1,4 +1,4 @@
-import requests, random
+import requests, random, socket
 
 # These are just some random useragents, you can replace these with a different list
 user_agents = [
@@ -16,10 +16,47 @@ user_agents = [
 class NotFoundException(Exception):
 	pass
 	
+# Very nasty monkeypatching ahead!
+socket.real_create_connection = socket.create_connection
+
 class ModifiedSession(requests.Session):
 	def __init__(self, *args, **kwargs):
+		try:
+			self.bound_ip = kwargs['bound_ip']
+			del kwargs['bound_ip']
+		except KeyError, e:
+			self.bound_ip = ""
+			
 		requests.Session.__init__(self, *args, **kwargs)
 		self.headers['user-agent'] = random.choice(user_agents)
+		
+	def patch_socket(self):
+		socket.create_connection = get_patched_func(self.bound_ip)
+	
+	def unpatch_socket(self):
+		socket.create_connection = socket.real_create_connection
+	
+	def get(self, *args, **kwargs):
+		self.patch_socket()
+		response = requests.Session.get(self, *args, **kwargs)
+		self.unpatch_socket()
+		return response
+		
+	def post(self, *args, **kwargs):
+		self.patch_socket()
+		response = requests.Session.get(self, *args, **kwargs)
+		self.unpatch_socket()
+		return response
+
+def get_patched_func(bind_addr):
+	def set_src_addr(*args):
+		address, timeout = args[0], args[1]
+		source_address = (bind_addr, 0)
+		return socket.real_create_connection(address, timeout, source_address)
+	return set_src_addr
+	
+# You're looking at duct tape and tie-wraps. It's like your local Home
+# Depot, except in Python.
 	
 def download_file(request, target):
 	if request.status_code == 200:

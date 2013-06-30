@@ -2,9 +2,12 @@ from shared import NotFoundException, ModifiedSession, download_file
 import requests, re, HTMLParser
 
 class NzbindexSpider(object):
+	def __init__(self, bound_ip):
+		self.bound_ip = bound_ip
+		
 	def find(self, name):
 		parser = HTMLParser.HTMLParser()
-		self.session = ModifiedSession()
+		self.session = ModifiedSession(bound_ip=self.bound_ip)
 		self.session.post("https://nzbindex.com/agree/", data={"agree": "I agree"}, verify=False)
 		
 		response = self.session.get("https://nzbindex.com/search/", params={

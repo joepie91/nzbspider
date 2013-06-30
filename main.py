@@ -1,4 +1,4 @@
-import re, oursql, requests, sys, json, shlex, argparse, os
+import re, oursql, requests, sys, json, shlex, argparse, os, random
 
 from sources.nzbindex import NzbindexSpider
 from sources.binsearch import BinsearchSpider
@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(description="Automatically download NZBs for re
 parser.add_argument("--config", dest="config", action="store", help="Use a configuration file to match against the database as source")
 parser.add_argument("--list", dest="list", action="store", help="Use a newline-delimited list of releases as source")
 parser.add_argument("--target", dest="target", action="store", help="Where to save the NZBs (only needed in list mode)")
-parser.add_argument("--iplist", dest="list", action="store", help="Bind every request to a random IP from a newline-delimited list")
+parser.add_argument("--iplist", dest="iplist", action="store", help="Bind every request to a random IP from a newline-delimited list")
 args = parser.parse_args()
 
 if args.config is not None:
@@ -18,6 +18,12 @@ elif args.list is not None:
 else:
 	sys.stderr.write("You must specify either a configuration file or a release list.\n")
 	exit(1)
+	
+if args.iplist is not None:
+	iplist_file = open(args.iplist, "r")
+	iplist = iplist_file.read().splitlines()
+else:
+	iplist = [""]
 
 if mode == "config":
 	try:
@@ -111,11 +117,11 @@ for release in releases:
 		pass
 	
 	try:
-		spider = NzbindexSpider()
+		spider = NzbindexSpider(random.choice(iplist))
 		results = spider.find(release_name)
 	except NotFoundException, e:
 		try:
-			spider = BinsearchSpider()
+			spider = BinsearchSpider(random.choice(iplist))
 			results = spider.find(release_name)
 		except NotFoundException, e:
 			sys.stderr.write("Could not find release %s\n" % release_name)
