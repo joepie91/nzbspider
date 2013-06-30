@@ -25,6 +25,10 @@ contains all the available IPs on your machine. nzbspider will randomly
 pick one for every search query. If not specified, the OS default is 
 used.
 
+Using `--skip` you can specify a newline-delimited file that contains
+all release names that should be skipped, no matter what. This works in
+both modes.
+
 ### Release list
 
 This is a text file, specified with the `--list` parameter, that

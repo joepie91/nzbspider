@@ -10,6 +10,7 @@ parser.add_argument("--list", dest="list", action="store", help="Use a newline-d
 parser.add_argument("--target", dest="target", action="store", help="Where to save the NZBs (only needed in list mode)")
 parser.add_argument("--iplist", dest="iplist", action="store", help="Bind every request to a random IP from a newline-delimited list")
 parser.add_argument("--limit", dest="limit", action="store", help="How many records to select in configuration file mode, at most (default: 250)", default=250)
+parser.add_argument("--skip", dest="skip", action="store", help="Optionally, a path to a newline-delimited list of release names to always skip")
 args = parser.parse_args()
 
 if args.config is not None:
@@ -25,6 +26,12 @@ if args.iplist is not None:
 	iplist = iplist_file.read().splitlines()
 else:
 	iplist = [""]
+	
+if args.skip is not None:
+	skip_file = open(args.skip, "r")
+	skiplist = skip_file.read().splitlines()
+else:
+	skiplist = [""]
 
 if mode == "config":
 	try:
@@ -111,6 +118,11 @@ for release in releases:
 	if release_name in notfound_list:
 		# This NZB couldn't be found before
 		notfound += 1
+		continue
+		
+	if release_name in skiplist:
+		# This release should be skipped
+		skipped += 1
 		continue
 	
 	try:
