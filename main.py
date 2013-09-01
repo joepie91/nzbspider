@@ -13,6 +13,13 @@ parser.add_argument("--limit", dest="limit", action="store", help="How many reco
 parser.add_argument("--skip", dest="skip", action="store", help="Optionally, a path to a newline-delimited list of release names to always skip")
 args = parser.parse_args()
 
+autoskip_file = "autoskip.lst"
+
+def mark_autoskip(release_name):
+	f = open(autoskip_file, "a")
+	f.write("%s\n" % release_name)
+	f.close()
+
 if args.config is not None:
 	mode = "config"
 elif args.list is not None:
@@ -32,6 +39,13 @@ if args.skip is not None:
 	skiplist = skip_file.read().splitlines()
 else:
 	skiplist = [""]
+
+try:
+	f = open(autoskip_file, "r")
+	autoskiplist = f.read().splitlines()
+	f.close()
+except IOError, e:
+	autoskiplist = []
 
 if mode == "config":
 	try:
@@ -124,6 +138,11 @@ for release in releases:
 		# This release should be skipped
 		skipped += 1
 		continue
+		
+	if release_name in autoskiplist:
+		# This release should be skipped because it was downloaded previously
+		skipped += 1
+		continue
 	
 	try:
 		os.makedirs(target_dir)
@@ -156,5 +175,6 @@ for release in releases:
 		
 	sys.stdout.write("Downloaded NZB for %s.\n" % release_name)
 	downloaded += 1
+	mark_autoskip(release_name)
 
 sys.stdout.write("Finished. %d downloaded, %d skipped, %d errors and %d not found.\n" % (downloaded, skipped, errors, notfound))
