@@ -53,8 +53,7 @@ class ModifiedSession(requests.Session):
 		return response
 
 def get_patched_func(bind_addr):
-	def set_src_addr(*args):
-		address, timeout = args[0], args[1]
+	def set_src_addr(address, timeout, *args, **kwargs):
 		source_address = (bind_addr, 0)
 		return socket.real_create_connection(address, timeout, source_address)
 	return set_src_addr
